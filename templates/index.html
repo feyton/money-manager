@@ -1,0 +1,276 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %} Dashboard {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'css/jquery.datetimepicker.min.css' %}" class="css">
+{{ form.media }} 
+{% endblock stylesheets %}
+
+{% block content %}
+
+<!-- End Navbar -->
+<div class="panel-header panel-header-lg">
+  <canvas id="mainDashboardChart" data-url="{% url 'main-dashboard-chart' %}"></canvas>
+</div>
+
+<div class="content">
+
+  <div class="row">
+    <div class="col-lg-4">
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">All Accounts</h5>
+          <h4 class="card-title">Account balances</h4>
+          <div class="dropdown">
+            <button type="button" class="btn btn-round btn-outline-default dropdown-toggle btn-simple btn-icon no-caret"
+              data-toggle="dropdown">
+              <i class="now-ui-icons loader_gear"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+              <a class="dropdown-item" href="#">TigoCash</a>
+              <a class="dropdown-item" href="#">Mobile Money</a>
+              <a class="dropdown-item" href="#">Sacco</a>
+              <a class="dropdown-item text-danger" href="#">Remove Data</a>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="allAccountsChart" data-url="{% url 'account-chart-data' %}"></canvas>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">{% now 'Y'%} Sales</h5>
+          <h4 class="card-title">All Services</h4>
+          <div class="dropdown">
+            <button type="button" class="btn btn-round btn-outline-default dropdown-toggle btn-simple btn-icon no-caret"
+              data-toggle="dropdown">
+              <i class="now-ui-icons loader_gear"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+              <a class="dropdown-item" href="#">Hide for Now</a>
+              <a class="dropdown-item" href="#">Income</a>
+              <a class="dropdown-item" href="#">Expenses</a>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="bigChartData" data-url="{% url 'big-chart-data' %}"></canvas>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+      <div class="card card-chart">
+        <div class="card-header">
+          <h5 class="card-category">Popular services</h5>
+          <h4 class="card-title">Last 7 days</h4>
+        </div>
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="barChartSimpleGradientsNumbers"></canvas>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="stats">
+            <i class="now-ui-icons ui-2_time-alarm"></i> Last 7 days
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card  card-tasks">
+        <div class="card-header ">
+          <h5 class="card-category">Feyton Inc Print And Copy Shop</h5>
+          <h4 class="card-title">Tasks</h4>
+        </div>
+        <div class="card-body ">
+          <div class="table-full-width table-responsive">
+            <table class="table">
+              <tbody>
+                <!-- TASK -->
+
+                {% for task in tasks %}
+
+                <tr class="task-div" id="{{task.ref_code}}">
+                  <td>
+                    <div class="form-check">
+                      <label class="form-check-label">
+                        <input class="form-check-input task-completed" type="checkbox" data-url="{% url 'dashboard:complete' pk=task.id %}">
+                        <span class="form-check-sign"></span>
+                      </label>
+                    </div>
+                  </td>
+                  <td class="text-left">{{task.action}}</td>
+                  <td class="td-actions text-right">
+                    <button type="button" rel="tooltip" title=""
+                      class="btn btn-info btn-round btn-icon btn-icon-mini btn-neutral" data-original-title="Edit Task">
+                      <i class="now-ui-icons ui-2_settings-90"></i>
+                    </button>
+                    <a href="{{task.task_completed_url}}" rel="tooltip" title=""
+                      class="btn btn-danger btn-round btn-icon btn-icon-mini btn-neutral" data-original-title="Remove">
+                      <i class="now-ui-icons ui-1_simple-remove"></i>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+                <!-- //TASK -->
+
+
+
+              </tbody>
+            </table>
+
+          </div>
+          <button data-toggle="modal" data-target="#exampleModal" class="btn btn-warning">Add Task</button>
+        </div>
+        <div class="card-footer ">
+          <hr>
+          <div class="stats">
+            <i class="now-ui-icons loader_refresh spin"></i> Updated 3 minutes ago
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-category">Print and Copy Shop</h5>
+          <h4 class="card-title"> Employees Status</h4>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table overflow-auto">
+              <thead class=" text-primary">
+                <th>
+                  Name
+                </th>
+                <th>
+                  Role
+                </th>
+                <th class="text-right">
+                  Salary
+                </th>
+                <th>
+                  Next Due
+                </th>
+                <th class="text-right">
+                  Action
+                </th>
+              </thead>
+              <tbody>
+                
+                {% for worker in workers %}
+                  
+                
+                  
+                <tr>
+                  <td>
+                    <b>
+                    {{worker.name}}</b>
+                  </td>
+                  <td>
+                    {{worker.role}}
+                  </td>
+                  <td class="text-right">
+                    {{worker.salary|intcomma}}&nbsp;Rwf
+                  </td>
+                  <td>
+                    {{worker.payment_date}}
+                  </td>
+                  <td class="text-right">
+                    <a href="#"><i class="now-ui-icons ui-2_settings-90"></i></a>
+                  </td>
+                </tr>
+                {% endfor %}
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- FORMS -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-center" id="exampleModalLabel">New Task</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="post" action=".">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label for="message-text" class="col-form-label">Action:</label>
+                <textarea class="form-control" id="message-text" name="action" rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+                <label for="">Deadline</label>
+                {{form.deadline}}
+            </div>
+          </div>
+
+          <input type="submit" value="Add Task" class="btn btn-success">
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+
+<script>
+  $(document).ready(function () {
+    // Javascript method's body can be found in assets/js/demos.js
+    demo.initDashboardPageCharts();
+
+  });
+</script>
+<script src="{% static 'js/jquery.datetimepicker.min.js' %}"></script>
+<script src="/static/js/dashboard.js"></script>
+<script>
+  $('#id_deadline').datetimepicker({
+    inline: true,
+  });
+
+</script>
+
+{% endblock javascripts %}

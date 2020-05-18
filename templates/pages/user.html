@@ -1,0 +1,150 @@
+{% extends 'layouts/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %} Profile Page {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="panel-header panel-header-sm">
+</div>
+<div class="content">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="title">Profile: {{ request.user.get_full_name }}</h5>
+        </div>
+        <div class="card-body">
+          <form method="post" action="." enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-5 pr-1">
+                <div class="form-group">
+                  <label>UserEmail (disabled)</label>
+                  <input type="text" class="form-control" disabled="" placeholder="E-mail" value="{{ request.user.email }}">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 pr-1">
+                <div class="form-group">
+                  <label>First Name</label>
+                  {% render_field u_form.first_name class="form-control"%}
+                </div>
+              </div>
+              <div class="col-md-6 pl-1">
+                <div class="form-group">
+                  <label>Last Name</label>
+                  {% render_field u_form.last_name class="form-control"%}
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>About Me</label>
+                  {% render_field p_form.biography class="form-control"%}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6 pr-1">
+                <div class="custom-file" id="image_input">
+                  <input type="file" class="custom-file-input" name="image" id="id_image">
+                  <label for="id_image" class="custom-file-label" id="image_label">Profile Picture</label>
+                </div>
+
+                {% if user.userprofile.image %}
+
+                <div class="custom-control custom-checkbox my-1 mr-sm-2" id="clear_id">
+                  <br>
+                  <input type="checkbox" name="image-clear" id="image-clear_id" class="custom-control-input">
+                  <label for="image-clear_id" class="custom-control-label">Remove Current Image</label>
+                </div>
+
+                {% endif %}
+
+
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4 pr-1">
+                <input type="submit" value="Update" class="btn btn-info">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card card-user">
+        <div class="image">
+          <img src="/static/assets/img/bg5.jpg" alt="...">
+        </div>
+        <div class="card-body">
+          <div class="author">
+            <h5>
+
+              {% if user.userprofile.image %}
+
+              <img class="avatar border-gray" src="{{user.userprofile.image.url}}" alt="...">
+              {% else %}
+              <img class="avatar border-gray" src="/static/assets/img/mike.jpg" alt="...">
+              {% endif %}
+              <h5 class="title">
+                {{ request.user.get_short_name }}
+              </h5>
+            </h5>
+          </div>
+          <p class="description text-center">
+            {{ user.userprofile.biography}}
+          </p>
+        </div>
+        <hr>
+        <div class="button-container">
+          <a href="{% url 'account_change_password'%}" class="btn btn-warning">
+            Change Password
+          </a>
+          OR
+          <a href="#" class="btn btn-danger" id="account_delete">
+            Delete account
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+<script>
+  $(document).ready(function () {
+    $("#id_image").change(function () {
+      let filePath = $(this)[0].files[0].name;
+      $("#image_label").text(filePath);
+      $('#clear_id').hide()
+    });
+    $("#image-clear_id").change(function () {
+      if (this.checked) {
+        $('#image_input').hide(2000);
+      } else {
+        $('#image_input').show(2000)
+      }
+    });
+    $('#account_delete').click(function () {
+      let result = confirm('Are You Sure You Want to delete Your Accounts');
+      if (result == true) {
+        console.log('Go');
+      } else {
+        console.log('No');
+      }
+    })
+  })
+</script>
+{% endblock javascripts %}

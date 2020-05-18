@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Static assets - Used to load the Favicon -->
+{% load static %}
+
+<head>
+  <meta charset="utf-8" />
+
+  <!-- Favicon - loaded as static -->
+  <link href="{% static 'img/favicon.png' %}" rel="icon" type="image/png">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+  <title>
+    Money Manager | {% block title %} Home {% endblock %}
+  </title>
+
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
+    name='viewport' />
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
+    integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}" class="css">
+  <link href="{% static 'assets/css/now-ui-dashboard.css' %}" rel="stylesheet" />
+  <!-- CSS Just for demo purpose, don't include it in your project -->
+  <link href="{% static 'assets/demo/demo.css' %}" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/main.css" class="css">
+
+  <!-- Specific CSS goes HERE -->
+  {% block stylesheets %}{% endblock stylesheets %}
+
+</head>
+
+<body class="">
+
+  <div class="wrapper ">
+    {% if messages%}
+    <div class="notification box-color " id="notification">
+      {% for message in messages %}
+      <p {% if message.tags %} class="{{message.tags}}" {% endif %}>{{message}}</p>
+      {% endfor %}
+      <div class="progress"></div>
+    </div>
+  
+    {% endif%}
+
+    {% include 'includes/sidebar.html' %}
+
+    <div class="main-panel" id="main-panel">
+
+      {% include 'includes/navigation.html' %}
+
+      {% block content %}{% endblock content %}
+
+      {% include 'includes/footer.html' %}
+
+    </div>
+  </div>
+
+  {% include 'includes/scripts.html' %}
+
+  <!-- Specific JS goes HERE -->
+  <script>
+    {% if messages %}
+
+    var notification = document.getElementById("notification");
+    setTimeout(function () { notification.classList.toggle('box-active'); }, 500);
+    {% endif %}
+
+  </script>
+  {% block javascripts %}
+  {% endblock javascripts %}
+
+</body>
+
+</html>

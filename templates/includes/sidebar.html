@@ -1,0 +1,47 @@
+<div class="sidebar" data-color="blue">
+  <!-- Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red | yellow" -->
+  <div class="logo">
+
+    <a href="{% url 'dashboard:home' %}" class="simple-text logo-normal">
+      Money Manager
+    </a>
+  </div>
+  <div class="sidebar-wrapper" id="sidebar-wrapper">
+
+    <ul class="nav">
+
+      {% if user.is_authenticated %}
+
+      <li {% if active == 'home' %} class="active " {% endif %}>
+        <a href="/">
+          <i class="now-ui-icons design_app"></i>
+          <p>Dashboard</p>
+        </a>
+      </li>
+
+      <li {% if active == 'profile' %} class="active" {% endif %}>
+        <a href="{% url 'dashboard:profile' %}">
+          <i class="now-ui-icons users_single-02"></i>
+          <p>User Profile</p>
+        </a>
+      </li>
+      <li {% if active == 'notification' %} class="active" {% endif %}>
+        <a href="{% url 'dashboard:notification' %}">
+          <i class="now-ui-icons users_single-02"></i>
+          <p>Notifications</p>
+        </a>
+      </li>
+
+      <li>
+        <a href="{% url 'account_logout' %}">
+          <i class="now-ui-icons media-1_button-power"></i>
+          <p>Logout</p>
+        </a>
+      </li>
+
+      {% endif %}
+
+
+    </ul>
+  </div>
+</div>
