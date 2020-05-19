@@ -82,8 +82,11 @@ class MainDashboardChart(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, *args, **kwargs):
-        labels = []
-        data = {}
+        labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        data = {
+            'labels': labels
+        }
         return Response(data)
 
 main_dashboard_chart_data = MainDashboardChart.as_view()

@@ -119,6 +119,13 @@ $(document).ready(function () {
 
         var canvas = document.getElementById("bigChartData");
         var ctx = canvas.getContext('2d');
+        var gradientStroke = ctx.createLinearGradient(500, 0, 100, 0);
+        gradientStroke.addColorStop(0, '#80b6f5');
+        gradientStroke.addColorStop(1, chartColor);
+
+        var gradientFill = ctx.createLinearGradient(0, 200, 0, 50);
+        gradientFill.addColorStop(0, "rgba(128, 182, 244, 0)");
+        gradientFill.addColorStop(1, "rgba(255, 255, 255, 0.24)");
 
         // Global Options:
 
@@ -129,17 +136,17 @@ $(document).ready(function () {
                 label: "Income",
                 fill: false,
                 lineTension: 0.1,
-                backgroundColor: "rgba(225,0,0,0.4)",
-                borderColor: "red", // The main line color
+                backgroundColor: gradientFill,
+                borderColor: chartColor, // The main line color
                 borderCapStyle: 'square',
                 borderDash: [], // try [5, 15] for instance
                 borderDashOffset: 0.0,
                 borderJoinStyle: 'miter',
-                pointBorderColor: "black",
-                pointBackgroundColor: "white",
+                pointBorderColor: chartColor,
+                pointBackgroundColor: "#1e3d60",
                 pointBorderWidth: 1,
-                pointHoverRadius: 8,
-                pointHoverBackgroundColor: "yellow",
+                pointHoverRadius: 4,
+                pointHoverBackgroundColor: "#1e3d60",
                 pointHoverBorderColor: "brown",
                 pointHoverBorderWidth: 2,
                 pointRadius: 4,
@@ -179,13 +186,34 @@ $(document).ready(function () {
             scales: {
                 yAxes: [{
                     ticks: {
-                        beginAtZero: true
+                        fontColor: "rgba(255,255,255,0.4)",
+                        fontStyle: "bold",
+                        beginAtZero: true,
+                        maxTicksLimit: 5,
+                        padding: 10
+
                     },
                     scaleLabel: {
 
-                    }
+                    },
+                    gridLines: {
+                        drawTicks: true,
+                        drawBorder: false,
+                        display: true,
+                        color: "rgba(255,255,255,0.1)",
+                        zeroLineColor: "transparent"
+                      }
+          
                 }]
-            }
+            },
+            layout: {
+                padding: {
+                    left: 20,
+                    right: 20,
+                    top: 0,
+                    bottom: 0
+                }
+            },
         };
 
         // Chart declaration:
@@ -204,14 +232,14 @@ $(document).ready(function () {
     $.ajax({
         method: 'GET',
         url: big_chart_endpoint,
-        success: function(data) {
+        success: function (data) {
             labels_1 = data.label
             data_set_2 = data.expense
             data_set_1 = data.income
             console.log(data);
             setBigChartData();
         },
-        error: function() {
+        error: function () {
             alert('Something Gone wrong')
         }
     });
@@ -220,96 +248,96 @@ $(document).ready(function () {
     // MAIN DASHBOARD CHART
 
     function setMainDashboardChart() {
-        
-    var ctx = document.getElementById('mainDashboardChart').getContext("2d");
 
-    var gradientStroke = ctx.createLinearGradient(500, 0, 100, 0);
-    gradientStroke.addColorStop(0, '#80b6f4');
-    gradientStroke.addColorStop(1, chartColor);
+        var ctx = document.getElementById('mainDashboardChart').getContext("2d");
 
-    var gradientFill = ctx.createLinearGradient(0, 200, 0, 50);
-    gradientFill.addColorStop(0, "rgba(128, 182, 244, 0)");
-    gradientFill.addColorStop(1, "rgba(255, 255, 255, 0.24)");
+        var gradientStroke = ctx.createLinearGradient(500, 0, 100, 0);
+        gradientStroke.addColorStop(0, '#80b6f4');
+        gradientStroke.addColorStop(1, chartColor);
 
-    var myChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"],
-        datasets: [{
-          label: "Data",
-          borderColor: chartColor,
-          pointBorderColor: chartColor,
-          pointBackgroundColor: "#1e3d60",
-          pointHoverBackgroundColor: "#1e3d60",
-          pointHoverBorderColor: chartColor,
-          pointBorderWidth: 1,
-          pointHoverRadius: 7,
-          pointHoverBorderWidth: 2,
-          pointRadius: 5,
-          fill: true,
-          backgroundColor: gradientFill,
-          borderWidth: 2,
-          data: [50, 150, 100, 190, 130, 90, 150, 160, 120, 140, 190, 95]
-        }]
-      },
-      options: {
-        layout: {
-          padding: {
-            left: 20,
-            right: 20,
-            top: 0,
-            bottom: 0
-          }
-        },
-        maintainAspectRatio: false,
-        tooltips: {
-          backgroundColor: '#fff',
-          titleFontColor: '#333',
-          bodyFontColor: '#666',
-          bodySpacing: 4,
-          xPadding: 12,
-          mode: "nearest",
-          intersect: 0,
-          position: "nearest"
-        },
-        legend: {
-          position: "bottom",
-          fillStyle: "#FFF",
-          display: false
-        },
-        scales: {
-          yAxes: [{
-            ticks: {
-              fontColor: "rgba(255,255,255,0.4)",
-              fontStyle: "bold",
-              beginAtZero: true,
-              maxTicksLimit: 5,
-              padding: 10
+        var gradientFill = ctx.createLinearGradient(0, 200, 0, 50);
+        gradientFill.addColorStop(0, "rgba(128, 182, 244, 0)");
+        gradientFill.addColorStop(1, "rgba(255, 255, 255, 0.24)");
+
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: main_labels,
+                datasets: [{
+                    label: "Profit",
+                    borderColor: chartColor,
+                    pointBorderColor: chartColor,
+                    pointBackgroundColor: "#1e3d60",
+                    pointHoverBackgroundColor: "#1e3d60",
+                    pointHoverBorderColor: chartColor,
+                    pointBorderWidth: 1,
+                    pointHoverRadius: 7,
+                    pointHoverBorderWidth: 2,
+                    pointRadius: 5,
+                    fill: true,
+                    backgroundColor: gradientFill,
+                    borderWidth: 2,
+                    data: [50, 150, 100, 190, 130, 90, 150, 160, 120, 140, 190, 95]
+                }]
             },
-            gridLines: {
-              drawTicks: true,
-              drawBorder: false,
-              display: true,
-              color: "rgba(255,255,255,0.1)",
-              zeroLineColor: "transparent"
-            }
+            options: {
+                layout: {
+                    padding: {
+                        left: 20,
+                        right: 20,
+                        top: 0,
+                        bottom: 0
+                    }
+                },
+                maintainAspectRatio: false,
+                tooltips: {
+                    backgroundColor: '#fff',
+                    titleFontColor: '#333',
+                    bodyFontColor: '#666',
+                    bodySpacing: 4,
+                    xPadding: 12,
+                    mode: "nearest",
+                    intersect: 0,
+                    position: "nearest"
+                },
+                legend: {
+                    position: "bottom",
+                    fillStyle: "#FFF",
+                    display: false
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            fontColor: "rgba(255,255,255,0.4)",
+                            fontStyle: "bold",
+                            beginAtZero: true,
+                            maxTicksLimit: 5,
+                            padding: 10
+                        },
+                        gridLines: {
+                            drawTicks: true,
+                            drawBorder: false,
+                            display: true,
+                            color: "rgba(255,255,255,0.1)",
+                            zeroLineColor: "transparent"
+                        }
 
-          }],
-          xAxes: [{
-            gridLines: {
-              zeroLineColor: "transparent",
-              display: false,
+                    }],
+                    xAxes: [{
+                        gridLines: {
+                            zeroLineColor: "transparent",
+                            display: false,
 
-            },
-            ticks: {
-              padding: 10,
-              fontColor: "rgba(255,255,255,0.4)",
-              fontStyle: "bold"
+                        },
+                        ticks: {
+                            padding: 10,
+                            fontColor: "rgba(255,255,255,0.4)",
+                            fontStyle: "bold"
+                        }
+                    }]
+                }
             }
-          }]
-        }
-      }
-    });
+        });
     }
 
     var main_dash_endpoint = $("#mainDashboardChart").attr("data-url");
@@ -319,10 +347,11 @@ $(document).ready(function () {
     $.ajax({
         method: 'GET',
         url: main_dash_endpoint,
-        success: function(data) {
+        success: function (data) {
+            main_labels = data.labels
             setMainDashboardChart();
         },
-        error: function(error_data) {
+        error: function (error_data) {
             console.log(error_data)
         }
     })

@@ -1,9 +1,8 @@
 <div class="sidebar" data-color="blue">
   <!-- Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red | yellow" -->
-  <div class="logo">
-
+  <div class="logo text-center">
     <a href="{% url 'dashboard:home' %}" class="simple-text logo-normal">
-      Money Manager
+      Money <span class="text-primary font-weight-bold">Manager</span>
     </a>
   </div>
   <div class="sidebar-wrapper" id="sidebar-wrapper">
@@ -23,6 +22,12 @@
         <a href="{% url 'dashboard:profile' %}">
           <i class="now-ui-icons users_single-02"></i>
           <p>User Profile</p>
+        </a>
+      </li>
+      <li {% if active == 'transaction' %} class="active" {% endif %}>
+        <a href="{% url 'dashboard:transaction' %}">
+          <i class="now-ui-icons users_single-02"></i>
+          <p>Transactions</p>
         </a>
       </li>
       <li {% if active == 'notification' %} class="active" {% endif %}>

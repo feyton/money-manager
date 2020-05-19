@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
-from django.views.generic import View
+from django.views.generic import View, ListView
 from rest_framework import authentication, permissions, viewsets
 from rest_framework.authentication import (BasicAuthentication,
                                            SessionAuthentication)
@@ -16,7 +16,7 @@ from rest_framework.views import APIView
 from user.models import UserProfile
 
 from .forms import AddTaskForm, UpdateProfileForm, UpdateUserForm
-from .models import Employee, Task
+from .models import Employee, Task, Transaction
 from .serializers import GroupSerializer, UserSerializer
 
 User = get_user_model()
@@ -28,7 +28,7 @@ class HomeView(View):
         template_name = 'index.html'
         form = AddTaskForm
         tasks = Task.objects.filter(user = self.request.user, completed=False)
-        workers = Employee.objects.filter(manager=self.request.user)
+        workers = Employee.objects.filter(manager=self.request.user, on_payroll=True)
         context = {
             'active': 'home',
             'form': form,
@@ -91,11 +91,28 @@ user_view = UserView.as_view()
 
 class NotificationView(View):
     def get(self, *args, **kwargs):
+        tasks = Task.objects.filter(completed=True).count()
+        context = {
+            'active': 'notification',
+            'tasks': tasks
+        }
         template = 'pages/notifications.html'
-        return render(self.request, template)
+        return render(self.request, template, context)
 
 
 notification_view = NotificationView.as_view()
+
+class TransactionView(View):
+    def get(self, *args, **kwargs):
+        transactions = Transaction.objects.all()
+        template = 'pages/tables.html'
+        context = {
+            'active': 'transaction',
+            'transactions': transactions
+        }
+        return render(self.request, template, context)
+
+transaction_view = TransactionView.as_view()
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -117,12 +134,11 @@ class GroupViewSet(viewsets.ModelViewSet):
 def task_completed_view(request, pk):
     task = get_object_or_404(Task, id=pk)
     if task:
-        task.completed = True
-        task.save()
-        messages.success(request, 'Task completed')
+        task.delete()
+        messages.success(request, 'Task deleted')
         return redirect('dashboard:home')
     messages.error(request, 'No task with that ID')
-    return redirect('dashboard:notification')
+    return redirect('dashboard:home')
     
 def complete_task(request, pk):
     task = get_object_or_404(Task, id=pk)
@@ -141,3 +157,23 @@ def complete_task(request, pk):
             'message': 'No such task exist'
         }
         return JsonResponse(data)
+
+
+def delete_transaction(request, pk):
+    transaction = get_object_or_404(Transaction, id=pk)
+    if transaction:
+        transaction.delete()
+        messages.info(request, 'Transaction deleted successfully')
+        return redirect('dashboard:transaction')
+
+def pay_worker_view(request, pk):
+    worker = get_object_or_404(Employee, id=pk)
+    if worker:
+        worker.pay()
+        worker.save()
+        messages.success(request, 'Employee payed successfully')
+        return redirect('dashboard:home')
+
+    else:
+        messages.error(request, 'Something gone wrong')
+        return redirect('dashboard:home')

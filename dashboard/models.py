@@ -83,6 +83,8 @@ class Employee(models.Model):
     recorded = models.DateTimeField(auto_now_add=True)
     payment_date = models.DateField(auto_now_add=False, verbose_name='Employee payment date')
     other_info = models.TextField()
+    payment_account = models.ForeignKey('Account', on_delete=models.SET_NULL, null=True, blank=True)
+    on_payroll = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = 'Employee'
@@ -91,6 +93,22 @@ class Employee(models.Model):
 
     def __str__(self):
         return self.name
+
+    def pay(self):
+        account = self.payment_account
+        if self.employment_type == 'CAS':
+            account.available_balance -= self.salary
+            self.on_payroll = False
+            account.save()
+        elif self.employment_type == 'CON':
+            account.available_balance -= self.salary
+            self.payment_date += timedelta(days=30)
+            account.save()
+
+    def pay_url(self):
+        return reverse('dashboard:pay-worker', kwargs={'pk': self.id})
+
+
 
 class Task(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -162,6 +180,9 @@ class Transaction(models.Model):
 
         super().save(*args, **kwargs)
 
+    def delete_url(self):
+        return reverse('dashboard:delete-transaction', kwargs={"pk": self.id})
+
 
 class Payee(models.Model):
     name = models.CharField(max_length=20, blank=False, null=False)
@@ -196,28 +217,21 @@ def account_update(sender, instance, created, *args, **kwargs):
         if instance.category.name == 'Income':
             print('income')
             account.available_balance += instance.amount
-        else:
+        elif instance.category.name == 'Expense':
             account.available_balance -= instance.amount
+            print('Expense')
         account.transactions.add(instance)
         account.save()
 
     else:
         account = instance.account
         if not instance in account.transactions.all():
-            account.available_balance += instance.amount
+            if instance.category.name == 'Income':
+                account.available_balance += instance.amount
+            elif instance.category.name == 'Expense':
+                account.available_balance -= instance.amount
             account.transactions.add(instance)
             account.save()
 
 post_save.connect(account_update, sender=Transaction, weak=False)
 
-def account_change(sender, instance, *args, **kwargs):
-    try:
-        account = instance.account
-        if instance in account.transactions.all():
-            account.available_balance -= instance.amount
-            account.transactions.remove(instance)
-            account.save()
-    except Exception:
-        print('Error on update')
-
-pre_save.connect(account_change, sender=Transaction)
