@@ -1,11 +1,16 @@
+
+import random
+from datetime import datetime
+
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import get_template, render_to_string
 from django.utils.decorators import method_decorator
-from django.views.generic import View, ListView
+from django.views.generic import ListView, View
 from rest_framework import authentication, permissions, viewsets
 from rest_framework.authentication import (BasicAuthentication,
                                            SessionAuthentication)
@@ -15,9 +20,11 @@ from rest_framework.views import APIView
 
 from user.models import UserProfile
 
-from .forms import AddTaskForm, UpdateProfileForm, UpdateUserForm
+from .forms import (AddAccountForm, AddTaskForm, AddTransactionForm,
+                    AddWorkerForm, UpdateProfileForm, UpdateUserForm)
 from .models import Employee, Task, Transaction
 from .serializers import GroupSerializer, UserSerializer
+from .utils import generate_pdf_weasy
 
 User = get_user_model()
 
@@ -27,8 +34,9 @@ class HomeView(View):
     def get(self, *args, **kwargs):
         template_name = 'index.html'
         form = AddTaskForm
-        tasks = Task.objects.filter(user = self.request.user, completed=False)
-        workers = Employee.objects.filter(manager=self.request.user, on_payroll=True)
+        tasks = Task.objects.filter(user=self.request.user, completed=False)
+        workers = Employee.objects.filter(
+            manager=self.request.user, on_payroll=True)
         context = {
             'active': 'home',
             'form': form,
@@ -38,15 +46,15 @@ class HomeView(View):
         return render(self.request, template_name, context)
 
     def post(self, *args, **kwargs):
-        form =AddTaskForm(self.request.POST or None)
+        form = AddTaskForm(self.request.POST or None)
         if form.is_valid():
             task = form.save(commit=False)
             task.user = self.request.user
             task.save()
             messages.info(self.request, 'Task Added Successfully')
-            return redirect('dashboard:notification')
-        messages.info(self.request, 'Fill the form correctly')
-        return redirect('dashboard:notification')
+            return redirect('dashboard:dashboard')
+        messages.error(self.request, 'Fill the form correctly')
+        return redirect('dashboard:dashboard')
 
 
 home_view = HomeView.as_view()
@@ -88,7 +96,7 @@ class UserView(View):
 
 
 user_view = UserView.as_view()
-
+@method_decorator(login_required, name='dispatch')
 class NotificationView(View):
     def get(self, *args, **kwargs):
         tasks = Task.objects.filter(completed=True).count()
@@ -101,18 +109,31 @@ class NotificationView(View):
 
 
 notification_view = NotificationView.as_view()
-
+@method_decorator(login_required, name='dispatch')
 class TransactionView(View):
     def get(self, *args, **kwargs):
         transactions = Transaction.objects.all()
+        form = AddTransactionForm
         template = 'pages/tables.html'
         context = {
             'active': 'transaction',
-            'transactions': transactions
+            'transactions': transactions,
+            'form': form
         }
         return render(self.request, template, context)
 
+    def post(self, *args, **kwargs):
+        form = AddTransactionForm(self.request.POST or None)
+        if form.is_valid():
+            form.save()
+            messages.success(self.request, 'New Transaction recorded succesfully')
+            return redirect('dashboard:transaction')
+        messages.error(self.request, 'Fill the form')
+        return redirect('dashboard:transaction')
+
+
 transaction_view = TransactionView.as_view()
+
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -131,6 +152,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
 def task_completed_view(request, pk):
     task = get_object_or_404(Task, id=pk)
     if task:
@@ -139,7 +161,8 @@ def task_completed_view(request, pk):
         return redirect('dashboard:home')
     messages.error(request, 'No task with that ID')
     return redirect('dashboard:home')
-    
+
+
 def complete_task(request, pk):
     task = get_object_or_404(Task, id=pk)
     if task:
@@ -166,6 +189,7 @@ def delete_transaction(request, pk):
         messages.info(request, 'Transaction deleted successfully')
         return redirect('dashboard:transaction')
 
+
 def pay_worker_view(request, pk):
     worker = get_object_or_404(Employee, id=pk)
     if worker:
@@ -177,3 +201,37 @@ def pay_worker_view(request, pk):
     else:
         messages.error(request, 'Something gone wrong')
         return redirect('dashboard:home')
+
+
+def generate_pdf(request):
+    template = 'pdf.html'
+    donation = get_object_or_404(Transaction, ref_number='5-2020-05-20-FUYF6')
+    context = {
+        'transaction': donation
+    }
+    file_name = '%s-%s' % (donation.ref_number, donation.amount)
+
+    pdf = generate_pdf_weasy(request, template, file_name, context)
+    return pdf
+
+
+def edit_transaction(request, pk):
+    transaction = get_object_or_404(Transaction, id=pk)
+    form = AddTransactionForm(instance=transaction)
+    context = {
+        'form': form,
+        'active': 'transaction'
+    }
+    template = 'pages/change_transaction.html'
+    if request.method == 'POST':
+        form = AddTransactionForm(request.POST, instance=transaction)
+        if form.is_valid():
+            form.save()
+            messages.info(request, 'Form valid')
+            print(request)
+            return redirect('dashboard:transaction')
+        messages.error(request, 'Fill the form correctlt')
+        return render(request, template, context)
+    return render(request, template, context)
+
+        

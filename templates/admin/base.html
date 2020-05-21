@@ -1,93 +1,144 @@
-{% load i18n static %}<!DOCTYPE html>
+{% load i18n static %}
+<!DOCTYPE html>
 {% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
-<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl" {% endif %}>
+
 <head>
-<title>{% block title %}{% endblock %}</title>
-<link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}">
-{% block extrastyle %}{% endblock %}
-{% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}">{% endif %}
-{% block extrahead %}{% endblock %}
-{% block responsive %}
+    <title>Manager Board| {% block title %}{% endblock %}</title>
+    <link href="{% static 'img/favicon.png' %}" rel="icon" type="image/png">
+    <link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}">
+    {% block extrastyle %}{% endblock %}
+    {% if LANGUAGE_BIDI %}
+    <link rel="stylesheet" type="text/css"
+        href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}">{% endif %}
+    {% block extrahead %}{% endblock %}
+    {% block responsive %}
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{% static "admin/css/responsive.css" %}">
-    {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% static "admin/css/responsive_rtl.css" %}">{% endif %}
-{% endblock %}
-{% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
+    {% if LANGUAGE_BIDI %}
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/responsive_rtl.css" %}">{% endif %}
+    {% include "admin/includes/styles.html" %}
+    {% endblock %}
+    {% block blockbots %}
+    <meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
 </head>
 {% load i18n %}
 
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
-  data-admin-utc-offset="{% now "Z" %}">
+    data-admin-utc-offset="{% now "Z" %}">
 
-<!-- Container -->
-<div id="container">
+    <!-- Container -->
+    <div id="container" class="wrapper">
+        {% include 'admin/includes/sidebar.html' %}
+        <div class="main-panel" id="main-panel">
 
-    {% if not is_popup %}
-    <!-- Header -->
-    <div id="header">
-        <div id="branding">
-        {% block branding %}{% endblock %}
+            {% if not is_popup %}
+            {% include 'admin/includes/navigation.html' %}
+
+
+            {% endif %}
+
+            {% block messages %}
+
+            {% endblock messages %}
+
+            <!-- Content -->
+            <div class="panel-header panel-header-sm">
+                <div class="header text-center">
+                    {% block content_title %}{% if title %}<h2 class="title mt-n3">{{ title }}</h2>
+                    {% endif %}{% endblock %}
+                </div>
+            </div>
+            <div class="content">
+                <div class="row">
+                    <div class="col-lg-8 col-md-8 pt-2 pl-2">
+                        <div class="card ml-1">
+                            <div class="card-header">
+                        
+                                <h5 class="title">{% block pretitle %}{% endblock %}</h5>
+                            </div>
+                            <div class="card-body">
+                                {% block content %}
+                                {% block object-tools %}{% endblock %}
+                                {{ content }}
+                                {% endblock %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                                {% block sidebar %}
+                                <div class="col-md-4">
+                                <div class="card card-user">
+                                    <div class="image">
+                                      <img src="/static/assets/img/bg5.jpg" alt="...">
+                                    </div>
+                                    <div class="card-body">
+                                      <div class="author">
+                                        <h5>
+                            
+                                          {% if user.userprofile.image %}
+                            
+                                          <img class="avatar border-gray" src="{{user.userprofile.image.url}}" alt="...">
+                                          {% else %}
+                                          <img class="avatar border-gray" src="/static/assets/img/mike.jpg" alt="...">
+                                          {% endif %}
+                                          <h5 class="title">
+                                            {{ request.user.get_short_name }}
+                                          </h5>
+                                        </h5>
+                                      </div>
+                                      <p class="description text-center">
+                                        {{ user.userprofile.biography}}
+                                      </p>
+                                    </div>
+                                    <hr>
+                                    <div class="button-container">
+                                      <a href="{% url 'account_change_password'%}" class="btn btn-warning">
+                                        Change Password
+                                      </a>
+                                      OR
+                                      <a href="#" class="btn btn-danger" id="account_delete">
+                                        Delete account
+                                      </a>
+                                    </div>
+                                  </div>
+                                  </div>
+                                {% endblock %}
+                            
+                </div>
+
+            </div>
+            <!-- END Content -->
+
+            {% block footer %} {% include 'admin/includes/footer.html' %}{% endblock %}
         </div>
-        {% block usertools %}
-        {% if has_permission %}
-        <div id="user-tools">
-            {% block welcome-msg %}
-                {% trans 'Welcome,' %}
-                <strong>{% firstof user.get_short_name user.get_username %}</strong>.
-            {% endblock %}
-            {% block userlinks %}
-                {% if site_url %}
-                    <a href="{{ site_url }}">{% trans 'View site' %}</a> /
-                {% endif %}
-                {% if user.is_active and user.is_staff %}
-                    {% url 'django-admindocs-docroot' as docsroot %}
-                    {% if docsroot %}
-                        <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
-                    {% endif %}
-                {% endif %}
-                {% if user.has_usable_password %}
-                <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
-                {% endif %}
-                <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
-            {% endblock %}
-        </div>
-        {% endif %}
-        {% endblock %}
-        {% block nav-global %}{% endblock %}
     </div>
-    <!-- END Header -->
-    {% block breadcrumbs %}
-    <div class="breadcrumbs">
-    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-    {% if title %} &rsaquo; {{ title }}{% endif %}
-    </div>
-    {% endblock %}
-    {% endif %}
+    <!-- END Container -->
+    {% include 'admin/includes/js.html' %}
+    <script>
 
-    {% block messages %}
         {% if messages %}
-        <ul class="messagelist">{% for message in messages %}
-          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
-        {% endfor %}</ul>
+
+        {% for message in messages %}
+        $.notify({
+            message: '{{ message }}'
+               },
+            {
+                   
+                   {% if message.tags %}
+        type: "{{ message.tags }}",
+        {% else %}
+        type: 'info',
+            {% endif %}
+        delay: 5000,
+                       
+               })
+        {% endfor %}
+
         {% endif %}
-    {% endblock messages %}
 
-    <!-- Content -->
-    <div id="content" class="{% block coltype %}colM{% endblock %}">
-        {% block pretitle %}{% endblock %}
-        {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
-        {% block content %}
-        {% block object-tools %}{% endblock %}
-        {{ content }}
-        {% endblock %}
-        {% block sidebar %}{% endblock %}
-        <br class="clear">
-    </div>
-    <!-- END Content -->
-
-    {% block footer %}<div id="footer"></div>{% endblock %}
-</div>
-<!-- END Container -->
+    </script>
 
 </body>
+
 </html>

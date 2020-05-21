@@ -36,15 +36,8 @@
 <body class="">
 
   <div class="wrapper ">
-    {% if messages%}
-    <div class="notification box-color " id="notification">
-      {% for message in messages %}
-      <p {% if message.tags %} class="{{message.tags}}" {% endif %}>{{message}}</p>
-      {% endfor %}
-      <div class="progress"></div>
-    </div>
+
   
-    {% endif%}
 
     {% include 'includes/sidebar.html' %}
 
@@ -65,8 +58,23 @@
   <script>
     {% if messages %}
 
-    var notification = document.getElementById("notification");
-    setTimeout(function () { notification.classList.toggle('box-active'); }, 500);
+    {% for message in messages %}
+    $.notify({
+      title: "<b>Message</b><br>",
+        message: '<strong>{{ message }}</strong>'
+           },
+        {
+               
+               {% if message.tags %}
+    type: "{{ message.tags }}",
+    {% else %}
+    type: 'info',
+        {% endif %}
+    delay: 5000,
+                   
+           })
+    {% endfor %}
+
     {% endif %}
 
   </script>

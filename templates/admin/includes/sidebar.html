@@ -1,0 +1,45 @@
+{% load i18n static %}
+
+<div class="sidebar" data-color="orange">
+    <!-- Tip 1: You can change the color of the sidebar using: data-color="blue | green | orange | red | yellow" -->
+    <div class="logo text-center">
+      <a href="{% url 'admin:index' %}" class="simple-text logo-normal">
+        Manager <span class="text-dark font-weight-bold">Board</span>
+      </a>
+    </div>
+
+
+    <div class="sidebar-wrapper" id="sidebar-wrapper">
+  
+      <ul class="nav">
+  
+        {% if has_permission %}
+        {% block userlinks %}
+        
+        {% if available_apps %}
+
+        {% for app in available_apps %}
+  
+        <li  class=" " id="id_{{app.name}}">
+          <a href="{{ app.app_url }}" >
+            <i class="now-ui-icons design_app"></i>
+            <p>{{app.name}}</p>
+          </a>
+        </li>
+        {% endfor %}
+        {% endif %}
+  
+        <li class="active-pro">
+          <a href="{% url 'account_logout' %}">
+            <i class="now-ui-icons media-1_button-power"></i>
+            <p>Logout</p>
+          </a>
+        </li>
+        {% endblock %}
+  
+        {% endif %}
+  
+  
+      </ul>
+    </div>
+  </div>

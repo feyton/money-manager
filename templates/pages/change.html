@@ -1,0 +1,99 @@
+{% extends 'layouts/base.html' %}
+{% load humanize %}
+{% load widget_tweaks %}
+
+{% block title %} Edit Product{% endblock title %}
+
+{% block object_title %}
+
+{% endblock object_title %}
+
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}
+<link rel="stylesheet" href="/static/assets/css/bootstrap-select.min.css">
+{% endblock stylesheets %}
+
+{% block content %}
+
+<!-- End Navbar -->
+<div class="panel-header panel-header-sm">
+</div>
+
+<div class="content">
+    <div class="row">
+        <div class="col-md-8">
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="title">Edit:
+                        {% block object_name %}
+
+                        {% endblock object_name %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% block form %}
+
+                    {% endblock form %}
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-user">
+                <div class="image">
+                    <img src="/static/assets/img/bg5.jpg" alt="...">
+                </div>
+                <div class="card-body">
+                    <div class="author">
+                        <a href="#">
+
+                            {% if user.userprofile.image %}
+                            <img class="avatar border-gray" src="{{ user.userprofile.image.url}}" alt="...">
+
+                            {% else %}
+                            <img class="avatar border-gray" src="/static/assets/img/mike.jpg" alt="...">
+                            {% endif %}
+                            <h5 class="title">
+                                {{ request.user.get_full_name }}
+                            </h5>
+                        </a>
+                        <p class="description">
+                            {{ request.user.email }}
+                        </p>
+                    </div>
+                    <p class="description text-center">
+                        {{ request.user.userprofile.biography}}
+                    </p>
+                </div>
+
+                <hr>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+<script src="/static/assets/js/bootstrap-select.min.js"></script>
+<script src="/static/js/dashboard.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Javascript method's body can be found in assets/js/demos.js
+        demo.initDashboardPageCharts();
+
+    });
+</script>
+{% block page_scripts %}
+    
+{% endblock page_scripts %}
+
+{% endblock javascripts %}
+
+
+    

@@ -183,6 +183,8 @@ class Transaction(models.Model):
     def delete_url(self):
         return reverse('dashboard:delete-transaction', kwargs={"pk": self.id})
 
+    def edit_url(self):
+        return reverse('dashboard:edit-transaction', kwargs={'pk': self.id})
 
 class Payee(models.Model):
     name = models.CharField(max_length=20, blank=False, null=False)

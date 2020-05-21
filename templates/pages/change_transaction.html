@@ -1,0 +1,50 @@
+{% extends 'pages/change.html' %}
+{% load widget_tweaks %}
+
+{% block form %}
+
+{% if form.is_multipart %}
+<form action="." enctype="multipart/form-data" method="post">
+    {% else %}
+    <form action="." method="post" id="django_form">
+        {% endif %}
+        {% csrf_token %}
+
+        {% for field in form %}
+        <div class="row">
+            <div class="col-md-8 ml-3">
+                <div class="form-group row">
+                    <label for="{{field.id}}" class="col-sm-4 col-form-label {% if field.field.required %}
+                        required font-weight-bolder text-danger{%endif %}">{{field.label}}:</label>
+                    <div class="col-sm-8">
+                        {% render_field field %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% endfor %}
+        <div class="row">
+            <div class="col-md-2"></div>
+            <input type="submit" value="Update" class="btn btn-info">
+        </div>
+    </form>
+
+    {% endblock form %}
+
+    {% block page_scripts %}
+<script>
+    var $list = $("#django_form :input[type='text']");
+    $list.each(function() {
+        $(this).addClass('form-control')
+    });
+    var $select = $("#django_form select");
+    $select.each(function() {
+        $(this).addClass('custom-select w-90')
+    });
+    var $list = $("#django_form :input[type='number']");
+    $list.each(function() {
+        $(this).addClass('form-control')
+    });
+</script>
+    {% endblock page_scripts %}

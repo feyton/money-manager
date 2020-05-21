@@ -64,7 +64,7 @@ class BigChartData(APIView):
     def get(self, *args, **kwargs):
         labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-        data_set_1 = [65, 59, 80, 81, 56, 55, 40 ,0, 60, 55, 30, 78]
+        data_set_1 = [65, 59, 80, 81, 56, 55, 40 ,60, 60, 55, 30, 78, 100]
         data_set_2 = [30, 20, 60, 95, 64, 78, 90, 80, 90, 70, 40, 70, 89]
         data = {
             'label': labels,

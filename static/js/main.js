@@ -43,5 +43,27 @@ $(document).ready(function () {
         }
     })
 
+    $(".comfirm-delete").click(function(e) {
+        var proceed = confirm('Proceed with deletion');
+        if (proceed == true) {
+            $.notify({
+                title: '<b>Action confirmed</b><br>',
+                message: 'This one is <span class="text-danger">Deleted</span>'
+            }, {
+                type: 'warning',
+                delay: 3000,
+            })
+        } else {
+        e.preventDefault();
+        $.notify({
+            title: '<b>Action cancelled</b><br>',
+            message: 'This one is not <span class="text-danger">Deleted</span>'
+        }, {
+            type: 'info',
+            delay: 3000,
+        })
+        }
+    })
+
 
 })

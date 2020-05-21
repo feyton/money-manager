@@ -54,7 +54,9 @@
 {% endblock %}
 
 {% block sidebar %}
-<div id="content-related">
+<div class="col-md-4 mt-2">
+    <div class="card">
+
     <div class="module" id="recent-actions-module">
         <h2>{% trans 'Recent actions' %}</h2>
         <h3>{% trans 'My actions' %}</h3>
@@ -82,5 +84,7 @@
             </ul>
             {% endif %}
     </div>
+</div>
+
 </div>
 {% endblock %}

@@ -37,6 +37,11 @@ $(document).ready(function () {
                 yPadding: 10,
                 caretPadding: 10
             },
+            legend: {
+                position: "bottom",
+                fillStyle: "#FFF",
+                display: false
+            },
             responsive: true,
             scales: {
                 yAxes: [{
@@ -71,10 +76,10 @@ $(document).ready(function () {
             },
             layout: {
                 padding: {
-                    left: 0,
-                    right: 0,
+                    left: 2,
+                    right: 2,
                     top: 15,
-                    bottom: 15
+                    bottom: 0,
                 }
             }
         };
@@ -134,45 +139,33 @@ $(document).ready(function () {
             labels: labels_1,
             datasets: [{
                 label: "Income",
-                fill: false,
-                lineTension: 0.1,
-                backgroundColor: gradientFill,
-                borderColor: chartColor, // The main line color
-                borderCapStyle: 'square',
-                borderDash: [], // try [5, 15] for instance
-                borderDashOffset: 0.0,
-                borderJoinStyle: 'miter',
-                pointBorderColor: chartColor,
-                pointBackgroundColor: "#1e3d60",
-                pointBorderWidth: 1,
+                borderColor: "#f96332",
+                pointBorderColor: "#FFF",
+                pointBackgroundColor: "#f96332",
+                pointBorderWidth: 2,
                 pointHoverRadius: 4,
-                pointHoverBackgroundColor: "#1e3d60",
-                pointHoverBorderColor: "brown",
-                pointHoverBorderWidth: 2,
+                pointHoverBorderWidth: 1,
                 pointRadius: 4,
-                pointHitRadius: 10,
+                fill: true,
+                backgroundColor: gradientFill,
+                borderWidth: 2,
                 // notice the gap in the data and the spanGaps: true
                 data: data_set_1,
                 spanGaps: true,
             }, {
                 label: "Expense",
-                fill: true,
-                lineTension: 0.1,
-                backgroundColor: "rgba(167,105,0,0.4)",
-                borderColor: "#f96332",
-                borderCapStyle: 'butt',
-                borderDash: [],
-                borderDashOffset: 0.0,
-                borderJoinStyle: 'miter',
-                pointBorderColor: "white",
-                pointBackgroundColor: "black",
+                borderColor: chartColor,
+                pointBorderColor: chartColor,
+                pointBackgroundColor: "#1e3d60",
+                pointHoverBackgroundColor: "#1e3d60",
+                pointHoverBorderColor: chartColor,
                 pointBorderWidth: 1,
-                pointHoverRadius: 4,
-                pointHoverBackgroundColor: "brown",
-                pointHoverBorderColor: "yellow",
+                pointHoverRadius: 7,
                 pointHoverBorderWidth: 2,
-                pointRadius: 4,
-                pointHitRadius: 10,
+                pointRadius: 5,
+                fill: true,
+                backgroundColor: gradientFill,
+                borderWidth: 2,
                 // notice the gap in the data and the spanGaps: false
                 data: data_set_2,
                 spanGaps: false,
@@ -190,7 +183,7 @@ $(document).ready(function () {
                         fontStyle: "bold",
                         beginAtZero: true,
                         maxTicksLimit: 5,
-                        padding: 10
+                        padding: 10,
 
                     },
                     scaleLabel: {
@@ -202,25 +195,54 @@ $(document).ready(function () {
                         display: true,
                         color: "rgba(255,255,255,0.1)",
                         zeroLineColor: "transparent"
-                      }
-          
+                    }
+
+                }],
+                xAxes: [{
+                    gridLines: {
+                        zeroLineColor: "transparent",
+                        display: false,
+
+                    },
+                    ticks: {
+                        padding: 10,
+                        fontColor: "rgba(255,255,255,0.4)",
+                        fontStyle: "bold"
+                    }
                 }]
             },
             layout: {
                 padding: {
-                    left: 20,
-                    right: 20,
+                    left: 0,
+                    right: 5,
                     top: 0,
                     bottom: 0
                 }
             },
+            maintainAspectRatio: false,
+            tooltips: {
+                backgroundColor: '#fff',
+                titleFontColor: '#333',
+                bodyFontColor: '#666',
+                bodySpacing: 4,
+                xPadding: 12,
+                mode: "nearest",
+                intersect: 0,
+                position: "nearest"
+            },
+            legend: {
+                position: "bottom",
+                fillStyle: "#FFF",
+                display: false
+            },
+
         };
 
         // Chart declaration:
         var myBarChart = new Chart(ctx, {
             type: 'line',
             data: data,
-            options: gradientChartOptionsConfiguration
+            options: options,
         });
     }
 

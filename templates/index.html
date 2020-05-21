@@ -7,7 +7,7 @@
 <!-- Specific CSS goes HERE -->
 {% block stylesheets %}
 <link rel="stylesheet" href="{% static 'css/jquery.datetimepicker.min.css' %}" class="css">
-{{ form.media }} 
+{{ form.media }}
 {% endblock stylesheets %}
 
 {% block content %}
@@ -21,7 +21,7 @@
 
   <div class="row">
     <div class="col-lg-4">
-      <div class="card card-chart">
+      <div class="card card-chart bg-light" >
         <div class="card-header">
           <h5 class="card-category">All Accounts</h5>
           <h4 class="card-title">Account balances</h4>
@@ -50,168 +50,153 @@
         </div>
       </div>
     </div>
-    <div class="col-lg-4 col-md-6">
-      <div class="card card-chart">
-        <div class="card-header">
-          <h5 class="card-category">{% now 'Y'%} Sales</h5>
-          <h4 class="card-title">All Services</h4>
-          <div class="dropdown">
-            <button type="button" class="btn btn-round btn-outline-default dropdown-toggle btn-simple btn-icon no-caret"
-              data-toggle="dropdown">
-              <i class="now-ui-icons loader_gear"></i>
-            </button>
-            <div class="dropdown-menu dropdown-menu-right">
-              <a class="dropdown-item" href="#">Hide for Now</a>
-              <a class="dropdown-item" href="#">Income</a>
-              <a class="dropdown-item" href="#">Expenses</a>
-            </div>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="chart-area">
-            <canvas id="bigChartData" data-url="{% url 'big-chart-data' %}"></canvas>
-          </div>
-        </div>
-        <div class="card-footer">
-          <div class="stats">
-            <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
+    <div class="col-lg-8 col-md-12" ">
+      <div class=" card card-chart"
+      style="background: linear-gradient(to right, #238f86 0%, #4b2f1e 60%, #2e4761 100%);">
+      <div class="card-header">
+        <h5 class="card-category text-white font-weight-bold">{% now 'Y'%} Sales</h5>
+        <h4 class="card-title text-white">All Services</h4>
+        <div class="dropdown">
+          <button type="button" class="btn btn-round btn-outline-default dropdown-toggle btn-simple btn-icon no-caret"
+            data-toggle="dropdown">
+            <i class="now-ui-icons loader_gear"></i>
+          </button>
+          <div class="dropdown-menu dropdown-menu-right">
+            <a class="dropdown-item" href="#">Hide for Now</a>
+            <a class="dropdown-item" href="#">Income</a>
+            <a class="dropdown-item" href="#">Expenses</a>
           </div>
         </div>
       </div>
-    </div>
-    <div class="col-lg-4 col-md-6">
-      <div class="card card-chart">
-        <div class="card-header">
-          <h5 class="card-category">Popular services</h5>
-          <h4 class="card-title">Last 7 days</h4>
+      <div class="card-body">
+        <div class="chart-area">
+          <canvas id="bigChartData" data-url="{% url 'big-chart-data' %}"></canvas>
         </div>
-        <div class="card-body">
-          <div class="chart-area">
-            <canvas id="barChartSimpleGradientsNumbers"></canvas>
-          </div>
-        </div>
-        <div class="card-footer">
-          <div class="stats">
-            <i class="now-ui-icons ui-2_time-alarm"></i> Last 7 days
-          </div>
+      </div>
+      <div class="card-footer">
+        <div class="stats">
+          <i class="now-ui-icons arrows-1_refresh-69"></i> Just Updated
         </div>
       </div>
     </div>
   </div>
-  <div class="row">
-    <div class="col-md-6">
-      <div class="card  card-tasks">
-        <div class="card-header ">
-          <h5 class="card-category">Feyton Inc Print And Copy Shop</h5>
-          <h4 class="card-title">Tasks</h4>
+
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <div class="card  card-tasks">
+      <div class="card-header ">
+        <h5 class="card-category">Feyton Inc Print And Copy Shop</h5>
+        <h4 class="card-title">Tasks</h4>
+      </div>
+      <div class="card-body ">
+        <div class="table-full-width table-responsive">
+          <table class="table">
+            <tbody>
+              <!-- TASK -->
+
+              {% for task in tasks %}
+
+              <tr class="task-div" id="{{task.ref_code}}">
+                <td>
+                  <div class="form-check">
+                    <label class="form-check-label">
+                      <input class="form-check-input task-completed" type="checkbox"
+                        data-url="{% url 'dashboard:complete' pk=task.id %}">
+                      <span class="form-check-sign"></span>
+                    </label>
+                  </div>
+                </td>
+                <td class="text-left font-weight-bold">{{task.action}}</td>
+                <td class="td-actions text-right">
+                  <button type="button" rel="tooltip" title=""
+                    class="btn btn-info btn-round btn-icon btn-icon-mini btn-neutral" data-original-title="Edit Task">
+                    <i class="now-ui-icons ui-2_settings-90"></i>
+                  </button>
+                  <a href="{{task.task_completed_url}}" rel="tooltip" title=""
+                    class="btn btn-danger btn-round btn-icon btn-icon-mini btn-neutral comfirm-delete" data-original-title="Remove">
+                    <i class="now-ui-icons ui-1_simple-remove"></i>
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+              <!-- //TASK -->
+
+
+
+            </tbody>
+          </table>
+
         </div>
-        <div class="card-body ">
-          <div class="table-full-width table-responsive">
-            <table class="table">
-              <tbody>
-                <!-- TASK -->
-
-                {% for task in tasks %}
-
-                <tr class="task-div" id="{{task.ref_code}}">
-                  <td>
-                    <div class="form-check">
-                      <label class="form-check-label">
-                        <input class="form-check-input task-completed" type="checkbox" data-url="{% url 'dashboard:complete' pk=task.id %}">
-                        <span class="form-check-sign"></span>
-                      </label>
-                    </div>
-                  </td>
-                  <td class="text-left">{{task.action}}</td>
-                  <td class="td-actions text-right">
-                    <button type="button" rel="tooltip" title=""
-                      class="btn btn-info btn-round btn-icon btn-icon-mini btn-neutral" data-original-title="Edit Task">
-                      <i class="now-ui-icons ui-2_settings-90"></i>
-                    </button>
-                    <a href="{{task.task_completed_url}}" rel="tooltip" title=""
-                      class="btn btn-danger btn-round btn-icon btn-icon-mini btn-neutral" data-original-title="Remove">
-                      <i class="now-ui-icons ui-1_simple-remove"></i>
-                    </a>
-                  </td>
-                </tr>
-                {% endfor %}
-                <!-- //TASK -->
-
-
-
-              </tbody>
-            </table>
-
-          </div>
-          <button data-toggle="modal" data-target="#exampleModal" class="btn btn-warning">Add Task</button>
-        </div>
-        <div class="card-footer ">
-          <hr>
-          <div class="stats">
-            <i class="now-ui-icons loader_refresh spin"></i> Updated 3 minutes ago
-          </div>
+        <button data-toggle="modal" data-target="#exampleModal" class="btn btn-warning">Add Task</button>
+      </div>
+      <div class="card-footer ">
+        <hr>
+        <div class="stats">
+          <i class="now-ui-icons loader_refresh"></i> Updated Now
         </div>
       </div>
     </div>
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="card-category">Print and Copy Shop</h5>
-          <h4 class="card-title"> Employees Status</h4>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table overflow-auto">
-              <thead class=" text-primary">
-                <th>
-                  Name
-                </th>
-                <th>
-                  Role
-                </th>
-                <th class="text-right">
-                  Salary
-                </th>
-                <th>
-                  Next Due
-                </th>
-                <th class="text-right">
-                  Action
-                </th>
-              </thead>
-              <tbody>
-                
-                {% for worker in workers %}
-                  
-                
-                  
-                <tr>
-                  <td>
-                    <b>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-category">Print and Copy Shop</h5>
+        <h4 class="card-title"> Employees Status</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table overflow-auto">
+            <thead class=" text-primary">
+              <th>
+                Name
+              </th>
+              <th>
+                Role
+              </th>
+              <th class="text-right">
+                Salary
+              </th>
+              <th>
+                Next Due
+              </th>
+              <th class="text-right">
+                Action
+              </th>
+            </thead>
+            <tbody>
+
+              {% for worker in workers %}
+
+
+
+              <tr>
+                <td>
+                  <b>
                     {{worker.name}}</b>
-                  </td>
-                  <td>
-                    {{worker.role}}
-                  </td>
-                  <td class="text-right">
-                    {{worker.salary|intcomma}}&nbsp;Rwf
-                  </td>
-                  <td>
-                    {{worker.payment_date}}
-                  </td>
-                  <td class="text-right">
-                    <a href="{{worker.pay_url}}"><i class="now-ui-icons ui-2_settings-90"></i></a>
-                  </td>
-                </tr>
-                {% endfor %}
+                </td>
+                <td>
+                  {{worker.role}}
+                </td>
+                <td class="text-right">
+                  {{worker.salary|intcomma}}&nbsp;Rwf
+                </td>
+                <td>
+                  {{worker.payment_date}}
+                </td>
+                <td class="text-right">
+                  <a href="{{worker.pay_url}}"><i class="now-ui-icons ui-2_settings-90"></i></a>
+                </td>
+              </tr>
+              {% endfor %}
 
-              </tbody>
-            </table>
-          </div>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   </div>
+</div>
 </div>
 
 
@@ -239,8 +224,8 @@
           </div>
           <div class="row">
             <div class="col-md-12">
-                <label for="">Deadline</label>
-                {{form.deadline}}
+              <label for="">Deadline</label>
+              {{form.deadline}}
             </div>
           </div>
 

@@ -2,8 +2,9 @@ from django.urls import path
 from rest_framework import routers
 
 from .views import (GroupViewSet, UserViewSet, complete_task,
-                    delete_transaction, home_view, notification_view,
-                    task_completed_view, transaction_view, user_view, pay_worker_view)
+                    delete_transaction, edit_transaction, generate_pdf,
+                    home_view, notification_view, pay_worker_view,
+                    task_completed_view, transaction_view, user_view)
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -17,5 +18,7 @@ urlpatterns = [
     path('complete-task/<pk>/', complete_task, name='complete'),
     path('transaction/', transaction_view, name='transaction'),
     path('delete-transaction/<pk>/', delete_transaction, name="delete-transaction"),
-    path('pay-worker/<pk>/', pay_worker_view, name='pay-worker')
+    path('pay-worker/<pk>/', pay_worker_view, name='pay-worker'),
+    path('pdf', generate_pdf, name='pdf-generator'),
+    path('edit-transaction/<pk>/', edit_transaction, name='edit-transaction')
 ]
