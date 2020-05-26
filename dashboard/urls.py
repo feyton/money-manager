@@ -4,7 +4,7 @@ from rest_framework import routers
 from .views import (GroupViewSet, UserViewSet, complete_task,
                     delete_transaction, edit_transaction, generate_pdf,
                     home_view, notification_view, pay_worker_view,
-                    task_completed_view, transaction_view, user_view)
+                    task_completed_view, transaction_view, user_view, account_view, edit_account)
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -20,5 +20,7 @@ urlpatterns = [
     path('delete-transaction/<pk>/', delete_transaction, name="delete-transaction"),
     path('pay-worker/<pk>/', pay_worker_view, name='pay-worker'),
     path('pdf', generate_pdf, name='pdf-generator'),
-    path('edit-transaction/<pk>/', edit_transaction, name='edit-transaction')
+    path('edit-transaction/<pk>/', edit_transaction, name='edit-transaction'),
+    path('accounts/', account_view, name='accounts-view'),
+    path('edit-account/<pk>/', edit_account, name='edit-account')
 ]

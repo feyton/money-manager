@@ -5,9 +5,22 @@
 {% block title %}Transactions{% endblock title %}
 
 <!-- Specific CSS goes HERE -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.9/datepicker.min.css"
+  integrity="sha256-ZvEtNAd4i8k2hUczGFP3tFDwBRjw3WUTUagRUP7WcEw=" crossorigin="anonymous" />
+<style>
+  .datepicker-container {
+    z-index: 2000 !important;
+    /* has to be larger than 1050 */
+  }
+</style>
+{% endblock stylesheets %}
 
 {% block content %}
+
+
+
+
 
 <div class="panel-header panel-header-sm">
 </div>
@@ -56,7 +69,8 @@
                     {{transaction.amount|intcomma}} Rwf
                   </td>
                   <td class="text-right">
-                   <a href="{{transaction.edit_url}}">Edit</a> or <a href="{{transaction.delete_url}}" class="comfirm-delete">Delete</a>
+                    <a href="{{transaction.edit_url}}">Edit</a> or <a href="{{transaction.delete_url}}"
+                      class="comfirm-delete">Delete</a>
                   </td>
                 </tr>
                 {% endfor %}
@@ -80,7 +94,7 @@
   <div class="modal-dialog modal-dialog-centered " role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">New Transaction</h5>
+        <h5 class="modal-title text-center font-weight-bold" id="exampleModalLabel">New Transaction</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -89,7 +103,23 @@
         <form method="post" class="md-form" action="." enctype="multipart/form-data">
           {% csrf_token %}
 
-          {{form.as_p}}
+
+          {% for field in form %}
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group row">
+                <label for="" class="col-sm-4 col-form-label {% if field.field.required %}
+                required font-weight-bolder text-danger{%endif %}">{{field.label}}</label>
+                <div class="col-sm-8">
+                  {{field}}
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          {% endfor %}
+          
 
           <input type="submit" value="Add Transaction" class="btn btn-primary">
         </form>
@@ -105,16 +135,47 @@
 {% block javascripts %}
 <script>
   var $list = $("#django_form :input[type='text']");
-  $list.each(function() {
-      $(this).addClass('form-control')
+  $list.each(function () {
+    $(this).addClass('form-control')
   });
   var $select = $("#django_form select");
-  $select.each(function() {
-      $(this).addClass('custom-select w-90')
+  $select.each(function () {
+    $(this).addClass('custom-select w-90')
   });
   var $list = $("#django_form :input[type='number']");
-  $list.each(function() {
-      $(this).addClass('form-control')
+  $list.each(function () {
+    $(this).addClass('form-control')
   });
+  var $list = $("form :input[type='text']");
+  $list.each(function () {
+    $(this).addClass('form-control')
+  });
+  var $select = $("form select");
+  $select.each(function () {
+    $(this).addClass('custom-select w-90')
+  });
+  var $list = $("form :input[type='number']");
+  $list.each(function () {
+    $(this).addClass('form-control')
+  });
+
+
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datepicker/1.0.9/datepicker.min.js"
+  integrity="sha256-ZfF8n2U/HAoaw9WFo8VCUbLo58Q/goLRQ1TFrf4DA94=" crossorigin="anonymous"></script>
+<script>
+  $(document).ready(function () {
+    $("#add-Transaction").click(function () {
+      var end_date = new Date();
+      $("#id_date").datepicker({
+        format: 'yyyy-mm-dd',
+        endDate: end_date,
+        startDate: '2020/01/01',
+        weekStart: '1',
+        todayBtn: "linked",
+      });
+    });
+  })
 </script>
 {% endblock javascripts %}

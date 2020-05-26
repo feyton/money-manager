@@ -23,10 +23,10 @@ def photo_path(instance, filename):
 
 
 def ref_code_generator():
-    chars = '1234567890FEYTONFABRUCE'
-    randomstr = ''.join((random.choice(chars)) for x in range(5))
-    date, month = datetime.now().date(), datetime.now().month
-    return '%s-%s-%s' % (month, date, randomstr)
+    chars = '1234567890ABCDEFGHE'
+    randomstr = ''.join((random.choice(chars)) for x in range(3))
+    date = datetime.now().date()
+    return '%s-%s' % (date, randomstr)
 
 
 def render_to_pdf(template_src, context_dict={}):
@@ -50,3 +50,4 @@ def generate_pdf_weasy(request, template, file_name, context):
     pdf = HTML(string=html, base_url=request.build_absolute_uri()
                ).write_pdf(response, font_config=font_config)
     return response
+

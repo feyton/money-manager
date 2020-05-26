@@ -10,7 +10,7 @@ SECRET_KEY = 'kn(27cy$=epo+*&6fii8mnzhba$6^9b(-r=fqcg0fv7b@lvlp*'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     # Form tweaks
     'widget_tweaks',
     'rest_framework',
+    'rest_framework.authtoken',
     'bootstrap_datepicker_plus',
     # AllAuth
     'allauth',
@@ -161,6 +162,11 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+
+    ),
 }

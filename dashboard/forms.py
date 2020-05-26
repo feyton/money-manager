@@ -1,7 +1,7 @@
 from django import forms
 from user.models import User, UserProfile
-from .models import Task, Transaction, Account, Employee
-from bootstrap_datepicker_plus import DateTimePickerInput
+from .models import Task, Transaction, Account, Employee, AccountTransfer
+
 
 class UpdateProfileForm(forms.ModelForm):
     class Meta:
@@ -24,7 +24,6 @@ class AddTaskForm(forms.ModelForm):
         exclude=['user', ]
         widgets={
             'action': forms.Textarea(attrs={'class': 'form-control'}),
-            'deadline': DateTimePickerInput()
         }
 
 
@@ -42,4 +41,13 @@ class AddWorkerForm(forms.ModelForm):
 class AddAccountForm(forms.ModelForm):
     class Meta:
         model = Account
-        exclude = ['available_balance', 'transactions']
+        exclude = ['transactions']
+        widgets={
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+        }
+
+class AccountTransferForm(forms.ModelForm):
+    class Meta:
+        model = AccountTransfer
+        exclude = ['ref_number']
+    

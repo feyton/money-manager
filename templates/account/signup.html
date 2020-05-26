@@ -32,7 +32,7 @@
                     {% if success %}
 
                     <p class="text-center">
-                        Please <a href={% url 'account_login' %} class="text-black text-small">authenticate</a> using
+                        Please <a href={% url 'account_login' %} class="text-black text-small">Login</a> using
                         the new account.
                     </p>
 
@@ -48,34 +48,13 @@
 
                             <div class="col-md-3 pr-1">
                                 <div class="form-group">
-                                    <label>Username</label>
+                                    <label>Email</label>
                                 </div>
                             </div>
 
-                            <div class="col-md-6 pr-1">
+                            <div class="col-md-4 pr-1">
                                 <div class="form-group">
-                                    {{ form.username }}
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="row">
-                            <span class="text-error">{{ form.username.errors }}</span>
-                        </div>
-
-                        <div class="row">
-
-                            <div class="col-md-1 pr-1"></div>
-
-                            <div class="col-md-3 pr-1">
-                                <div class="form-group">
-                                    <label>eMail</label>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 pr-1">
-                                <div class="form-group">
-                                    {{ form.email }}
+                                    {% render_field form.email class="form-control" %}
                                 </div>
                             </div>
 
@@ -90,13 +69,54 @@
 
                             <div class="col-md-3 pr-1">
                                 <div class="form-group">
+                                    <label>First name</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 pr-1">
+                                <div class="form-group">
+                                    {% render_field form.first_name class="form-control" %}
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <span class="text-error">{{ form.first_name.errors }}</span>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-md-1 pr-1"></div>
+
+                            <div class="col-md-3 pr-1">
+                                <div class="form-group">
+                                    <label>Last name</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4 pr-1">
+                                <div class="form-group">
+                                    {% render_field form.last_name  class="form-control"%}
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <span class="text-error">{{ form.last_name.errors }}</span>
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-md-1 pr-1"></div>
+
+                            <div class="col-md-3 pr-1">
+                                <div class="form-group">
                                     <label>Password</label>
                                 </div>
                             </div>
 
-                            <div class="col-md-6 pr-1">
+                            <div class="col-md-4 pr-1">
                                 <div class="form-group">
-                                    {{ form.password1 }}
+                                    {% render_field form.password1 class="form-control" %}
                                 </div>
                             </div>
 
@@ -115,9 +135,9 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6 pr-1">
+                            <div class="col-md-4 pr-1">
                                 <div class="form-group">
-                                    {{ form.password2 }}
+                                    {% render_field form.password2 class="form-control" %}
                                 </div>
                             </div>
 
@@ -142,7 +162,7 @@
 
             </div>
             <div class="card-footer">
-                Have already an account? Please <a href="{% url 'account_login' %}">login</a>
+                Already have an account? Please <a href="{% url 'account_login' %}">Login</a>
             </div>
 
         </div>

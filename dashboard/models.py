@@ -116,8 +116,7 @@ class Task(models.Model):
         max_length=100, blank=True, null=True)
     action = models.TextField(blank=False, null=False)
     completed = models.BooleanField(default=False)
-    deadline = models.DateTimeField(
-        auto_now_add=False, validators=[validate_deadline], null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         if not self.ref_code:
@@ -130,6 +129,12 @@ class Task(models.Model):
 
     def task_completed_url(self):
         return reverse('dashboard:task-completed', kwargs={'pk': self.id})
+
+    def alert(self):
+        time = timezone.now() + timedelta(days=1)
+        if self.created < time:
+            return True
+        return False
 
 
 class Account(models.Model):
@@ -144,6 +149,7 @@ class Account(models.Model):
     available_balance = models.IntegerField(blank=True, null=True)
     transactions = models.ManyToManyField(
         'Transaction', related_name='transaction', blank=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
@@ -155,6 +161,9 @@ class Account(models.Model):
         
         super().save(*args, **kwargs)
 
+    def edit_url(self):
+        return reverse('dashboard:edit-account', kwargs={'pk': self.id})
+
 
 class Transaction(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
@@ -162,7 +171,7 @@ class Transaction(models.Model):
         'Payee', related_name='payee', on_delete=models.SET_NULL, null=True, blank=True)
     service = models.ForeignKey('Service', related_name='service',
                                  on_delete=models.SET_NULL, null=True, blank=True)
-    date = models.DateTimeField(auto_now_add=False, blank=True, null=True)
+    date = models.DateField(default=timezone.now, null=True)
     amount = models.PositiveIntegerField(blank=False, null=False)
     category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True)
     ref_number = models.CharField(
@@ -199,7 +208,7 @@ class Service(models.Model):
     category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return '%s' % (self.name)
+        return '%s-%s' % (self.name, self.category)
 
     class Meta:
         verbose_name = 'service'
@@ -237,3 +246,37 @@ def account_update(sender, instance, created, *args, **kwargs):
 
 post_save.connect(account_update, sender=Transaction, weak=False)
 
+def transaction_deleted(sender, instance, *args, **kwargs):
+    account = instance.account
+    category = instance.category.name
+    if category == 'Income':
+        account.available_balance -= instance.amount
+        account.save()
+    elif category == 'Expense':
+        account.available_balance += instance.amount
+        account.save()
+
+
+pre_delete.connect(transaction_deleted, sender=Transaction, weak=False)
+
+
+
+class AccountTransfer(models.Model):
+    from_account = models.ForeignKey(Account, null=True, on_delete=models.SET_NULL, related_name='from_account')
+    to_account = models.ForeignKey(Account, null=True, on_delete=models.SET_NULL, related_name='to_account')
+    amount = models.PositiveIntegerField(blank=True, null=True)
+    ref_number = models.CharField(max_length=20, blank=True, null=True)
+
+    def __str__(self):
+        return '%s- %s' %(self.to_account.name, self.amount)
+
+    def save(self, *args, **kwargs):
+        if not self.ref_number:
+            self.ref_number = ref_code_generator()
+        acc1 = self.from_account
+        acc2 = self.to_account
+        acc1.available_balance -= self.amount
+        acc1.save()
+        acc2.available_balance += self.amount
+        acc2.save()
+        super().save(*args, **kwargs)

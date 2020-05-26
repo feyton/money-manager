@@ -30,6 +30,12 @@
           <p>Transactions</p>
         </a>
       </li>
+      <li {% if active == 'accounts' %} class="active" {% endif %}>
+        <a href="{% url 'dashboard:accounts-view' %}">
+          <i class="now-ui-icons users_single-02"></i>
+          <p>Accounts</p>
+        </a>
+      </li>
       <li {% if active == 'notification' %} class="active" {% endif %}>
         <a href="{% url 'dashboard:notification' %}">
           <i class="now-ui-icons users_single-02"></i>

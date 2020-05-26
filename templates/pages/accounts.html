@@ -1,0 +1,273 @@
+{% extends 'layouts/base.html' %}
+{% load humanize %}
+
+
+{% block title %}
+Accounts
+{% endblock title %}
+Accounts
+
+{% block content %}
+<div class="panel-header panel-header-lg">
+    <canvas id="accountsChartBoard" data-url="{% url 'account-chart-data' %}"></canvas>
+</div>
+
+<div class=" content">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title"> My Accounts</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead class=" text-primary">
+                                    <th>
+                                        Name
+                                    </th>
+                                    <th>
+                                        Type
+                                    </th>
+                                    <th>
+                                        Initial $$
+                                    </th>
+                                    <th class="text-right">
+                                        Available $$
+                                    </th>
+                                    <th class="text-right">
+                                        Actions
+                                    </th>
+                                </thead>
+                                <tbody>
+
+                                    {% for account in accounts %}
+
+                                    <tr>
+                                        <td>
+                                            {{account.name}}
+                                        </td>
+                                        <td>
+                                            {{account.get_account_type_display}}
+                                        </td>
+                                        <td>
+                                            {{account.opening_balance|intcomma}}&nbsp;Rwf
+                                        </td>
+                                        <td class="text-right font-weight-bold">
+                                            {{account.available_balance|intcomma}} Rwf
+                                        </td>
+                                        <td class="text-right">
+                                            <a href="{{account.edit_url}}">Edit</a> or <a
+                                                href="{{transaction.delete_url}}" class="comfirm-delete">Delete</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="button-group ml-3 mt-2">
+                            <button class="btn btn-info" id="add-Transaction" data-target="#addTransaction"
+                                data-toggle="modal">New
+                                Account</button> <button class="btn btn-default font-weight-bold ml-3" id="new-Transfer"
+                                data-target="#newTransfer" data-toggle="modal">Transfer Between Accounts</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="card">
+
+            </div>
+        </div>
+</div>
+
+
+<!-- FORMS -->
+<div class="modal fade" id="newTransfer" tabindex="-1" role="dialog" aria-labelledby="newTransfer" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered " role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-center font-weight-bold" id="exampleModalLabel">Transafer Between Accounts
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" class="md-form" action="." enctype="multipart/form-data">
+                    {% csrf_token %}
+
+
+                    {% for field in form %}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group row">
+                                <label for="" class="col-sm-4 col-form-label {% if field.field.required %}
+                required font-weight-bolder text-danger{%endif %}">{{field.label}}</label>
+                                <div class="col-sm-8">
+                                    {{field}}
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <p>Transfers Cannot be Edited after submission</p>
+
+                    <input type="submit" value="Proceed with Transfer" class="btn btn-info" id="submitTransfer">
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock content %}
+
+
+{% block javascripts %}
+<script>
+    var $list = $("form :input[type='text']");
+    $list.each(function () {
+        $(this).addClass('form-control')
+    });
+    var $select = $("form select");
+    $select.each(function () {
+        $(this).addClass('custom-select w-90')
+    });
+    var $list = $("form :input[type='number']");
+    $list.each(function () {
+        $(this).addClass('form-control')
+    });
+
+    $('form').submit(function (e) {
+        var account1 = $('#id_from_account').val();
+        var account2 = $('#id_to_account').val();
+        if (account1 == account2) {
+            e.preventDefault();
+            $.notify({
+                title: "<b>Form Error</b> <br>",
+                message: 'Accounts must be different'
+            },
+                {
+                    type: 'danger',
+                    delay: 3000,
+                }
+            )
+        }
+    });
+    
+    var endpoint = $("#accountsChartBoard").attr('data-url')
+    var labels = [];
+    var default_data = [];
+    $.ajax({
+        method : 'GET',
+        url: endpoint,
+        success: function(data) {
+            labels = data.labels
+            default_data = data.chart_data
+            setAccountsChart();
+        },
+        error: function(error_data) {
+            console.log(error_data)
+        }
+        
+    })
+    function setAccountsChart() {
+        chartColor = "#FFFFFF";
+        ctx = document.getElementById("accountsChartBoard").getContext('2d');
+        var gradientStroke = ctx.createLinearGradient(500, 0, 100, 0);
+        gradientStroke.addColorStop(0, '#80b6f4');
+        gradientStroke.addColorStop(1, chartColor);
+
+        var gradientFill = ctx.createLinearGradient(0, 200, 0, 50);
+        gradientFill.addColorStop(0, "rgba(128, 182, 244, 0)");
+        gradientFill.addColorStop(1, "rgba(255, 255, 255, 0.24)");
+
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Balance",
+                    borderColor: chartColor,
+                    pointBorderColor: chartColor,
+                    pointBackgroundColor: "#1e3d60",
+                    pointHoverBackgroundColor: "#1e3d60",
+                    pointHoverBorderColor: chartColor,
+                    pointBorderWidth: 1,
+                    pointHoverRadius: 7,
+                    pointHoverBorderWidth: 2,
+                    pointRadius: 5,
+                    fill: true,
+                    backgroundColor: gradientFill,
+                    borderWidth: 2,
+                    data: default_data
+                }]
+            },
+            options: {
+                layout: {
+                    padding: {
+                        left: 20,
+                        right: 20,
+                        top: 0,
+                        bottom: 0
+                    }
+                },
+                maintainAspectRatio: false,
+                tooltips: {
+                    backgroundColor: '#fff',
+                    titleFontColor: '#333',
+                    bodyFontColor: '#666',
+                    bodySpacing: 4,
+                    xPadding: 12,
+                    mode: "nearest",
+                    intersect: 0,
+                    position: "nearest"
+                },
+                legend: {
+                    position: "bottom",
+                    fillStyle: "#FFF",
+                    display: false
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            fontColor: "rgba(255,255,255,0.4)",
+                            fontStyle: "bold",
+                            beginAtZero: true,
+                            maxTicksLimit: 5,
+                            padding: 10
+                        },
+                        gridLines: {
+                            drawTicks: true,
+                            drawBorder: false,
+                            display: true,
+                            color: "rgba(255,255,255,0.1)",
+                            zeroLineColor: "transparent"
+                        }
+
+                    }],
+                    xAxes: [{
+                        gridLines: {
+                            zeroLineColor: "transparent",
+                            display: false,
+
+                        },
+                        ticks: {
+                            padding: 10,
+                            fontColor: "rgba(255,255,255,0.4)",
+                            fontStyle: "bold"
+                        }
+                    }]
+                }
+            }
+        });
+    }
+
+
+
+
+</script>
+{% endblock javascripts %}

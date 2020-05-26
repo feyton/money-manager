@@ -1,13 +1,13 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
 {% load humanize %}
+{% load widget_tweaks %}
 
 {% block title %} Dashboard {% endblock title %}
 
 <!-- Specific CSS goes HERE -->
 {% block stylesheets %}
-<link rel="stylesheet" href="{% static 'css/jquery.datetimepicker.min.css' %}" class="css">
-{{ form.media }}
+
 {% endblock stylesheets %}
 
 {% block content %}
@@ -21,7 +21,7 @@
 
   <div class="row">
     <div class="col-lg-4">
-      <div class="card card-chart bg-light" >
+      <div class="card card-chart bg-light">
         <div class="card-header">
           <h5 class="card-category">All Accounts</h5>
           <h4 class="card-title">Account balances</h4>
@@ -50,7 +50,7 @@
         </div>
       </div>
     </div>
-    <div class="col-lg-8 col-md-12" ">
+    <div class="col-lg-8 col-md-12" >
       <div class=" card card-chart"
       style="background: linear-gradient(to right, #238f86 0%, #4b2f1e 60%, #2e4761 100%);">
       <div class="card-header">
@@ -107,14 +107,19 @@
                     </label>
                   </div>
                 </td>
-                <td class="text-left font-weight-bold">{{task.action}}</td>
+                <td class="text-left font-weight-bold" colspan="3">{{task.action}}</td>
                 <td class="td-actions text-right">
+
+                  {% if not task.alert %}
+
                   <button type="button" rel="tooltip" title=""
-                    class="btn btn-info btn-round btn-icon btn-icon-mini btn-neutral" data-original-title="Edit Task">
-                    <i class="now-ui-icons ui-2_settings-90"></i>
+                    class="btn btn-danger btn-round btn-icon btn-icon-mini btn-neutral" data-original-title="Edit Task">
+                    <i class="now-ui-icons ui-1_bell-53"></i>
                   </button>
+                  {% endif %}
                   <a href="{{task.task_completed_url}}" rel="tooltip" title=""
-                    class="btn btn-danger btn-round btn-icon btn-icon-mini btn-neutral comfirm-delete" data-original-title="Remove">
+                    class="btn btn-danger btn-round btn-icon btn-icon-mini btn-neutral comfirm-delete"
+                    data-original-title="Remove">
                     <i class="now-ui-icons ui-1_simple-remove"></i>
                   </a>
                 </td>
@@ -128,7 +133,7 @@
           </table>
 
         </div>
-        <button data-toggle="modal" data-target="#exampleModal" class="btn btn-warning">Add Task</button>
+        <button data-toggle="modal" data-target="#addTask" class="btn btn-warning">Add Task</button>
       </div>
       <div class="card-footer ">
         <hr>
@@ -193,6 +198,8 @@
             </tbody>
           </table>
         </div>
+        <button class="btn btn-info btn-round" id="add-Employee" data-toggle="modal" data-target="#addEmployee">New
+          Employee</button>
       </div>
     </div>
   </div>
@@ -201,8 +208,7 @@
 
 
 <!-- FORMS -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-  aria-hidden="true">
+<div class="modal fade" id="addTask" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -222,14 +228,89 @@
               </div>
             </div>
           </div>
-          <div class="row">
-            <div class="col-md-12">
-              <label for="">Deadline</label>
-              {{form.deadline}}
-            </div>
-          </div>
 
           <input type="submit" value="Add Task" class="btn btn-success">
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="addEmployee" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered modal-lg bg-light" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-center" id="addEmployee">New Task</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="." id="workerForm">
+          {% csrf_token %}
+
+          {% for field in add_worker_form %}
+
+          {% if field.field.widget.input_type == 'text' %}
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group row">
+                <label for="" class="col-sm-4 col-form-label {% if field.field.required %}
+                required font-weight-bolder text-dark{%endif %}">{{field.label}}:</label>
+                <div class="col-sm-8">
+                  {% render_field field class="form-control" %}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% elif field.field.widget.input_type == 'select' %}
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group row">
+                <label for="" class="col-sm-4 col-form-label">{{field.label}}:</label>
+                <div class="col-sm-8">
+                  {% render_field field class="custom-select" %}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% elif field.field.widget.input_type == 'checkbox' %}
+          <div class="row">
+            <div class="col-md-8 offset-4">
+              <div class="custom-control custom-checkbox form-check-inline">
+                {% render_field field class="custom-control-input" %}
+                <label for="{{field.id_for_label}}" class="custom-control-label">{{field.label}}</label>
+              </div>
+            </div>
+
+            {% else %}
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group row">
+                  <label for="" class="col-sm-4 col-form-label">{{field.label}}:</label>
+                  <div class="col-sm-8">
+                    {% render_field field class="form-control" %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+
+            {% for error in add_worker_form.errors %}
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group row">
+                  {{error}}
+                </div>
+              </div>
+            </div>
+
+            {% endfor %}
+
+            <hr>
+            <input type="submit" value="New Employee" class="btn btn-info ml-3">
         </form>
       </div>
     </div>
@@ -248,14 +329,9 @@
     demo.initDashboardPageCharts();
 
   });
-</script>
-<script src="{% static 'js/jquery.datetimepicker.min.js' %}"></script>
-<script src="/static/js/dashboard.js"></script>
-<script>
-  $('#id_deadline').datetimepicker({
-    inline: true,
-  });
 
 </script>
+
+<script src="/static/js/dashboard.js"></script>
 
 {% endblock javascripts %}

@@ -1,4 +1,4 @@
-
+from .data import data
 import random
 from datetime import datetime
 
@@ -21,8 +21,8 @@ from rest_framework.views import APIView
 from user.models import UserProfile
 
 from .forms import (AddAccountForm, AddTaskForm, AddTransactionForm,
-                    AddWorkerForm, UpdateProfileForm, UpdateUserForm)
-from .models import Employee, Task, Transaction
+                    AddWorkerForm, UpdateProfileForm, UpdateUserForm, AccountTransferForm, AccountTransfer)
+from .models import Employee, Task, Transaction, Account
 from .serializers import GroupSerializer, UserSerializer
 from .utils import generate_pdf_weasy
 
@@ -34,6 +34,7 @@ class HomeView(View):
     def get(self, *args, **kwargs):
         template_name = 'index.html'
         form = AddTaskForm
+        add_worker = AddWorkerForm()
         tasks = Task.objects.filter(user=self.request.user, completed=False)
         workers = Employee.objects.filter(
             manager=self.request.user, on_payroll=True)
@@ -41,20 +42,29 @@ class HomeView(View):
             'active': 'home',
             'form': form,
             'tasks': tasks,
-            'workers': workers
+            'workers': workers,
+            'add_worker_form': add_worker
         }
+
         return render(self.request, template_name, context)
 
     def post(self, *args, **kwargs):
         form = AddTaskForm(self.request.POST or None)
+        add_worker_form = AddWorkerForm(self.request.POST or None)
         if form.is_valid():
             task = form.save(commit=False)
             task.user = self.request.user
             task.save()
             messages.info(self.request, 'Task Added Successfully')
-            return redirect('dashboard:dashboard')
+            return redirect('dashboard:home')
+        elif add_worker_form.is_valid():
+            worker = add_worker_form.save(commit=False)
+            worker.manager = self.request.user
+            worker.save()
+            messages.info(self.request, 'New worker added successfully')
+            return redirect('dashboard:home')
         messages.error(self.request, 'Fill the form correctly')
-        return redirect('dashboard:dashboard')
+        return render(self.request, 'index.html', {'form': form, 'add_worker_form': add_worker_form})
 
 
 home_view = HomeView.as_view()
@@ -75,8 +85,6 @@ class UserView(View):
             'u_form': user_form,
             'p_form': profile_form
         }
-        print(user_form)
-        print(profile_form)
         return render(self.request, template, context)
 
     def post(self, *args, **kwargs):
@@ -109,10 +117,12 @@ class NotificationView(View):
 
 
 notification_view = NotificationView.as_view()
+
+
 @method_decorator(login_required, name='dispatch')
 class TransactionView(View):
     def get(self, *args, **kwargs):
-        transactions = Transaction.objects.all()
+        transactions = Transaction.objects.all().order_by('-date_created')
         form = AddTransactionForm
         template = 'pages/tables.html'
         context = {
@@ -126,7 +136,8 @@ class TransactionView(View):
         form = AddTransactionForm(self.request.POST or None)
         if form.is_valid():
             form.save()
-            messages.success(self.request, 'New Transaction recorded succesfully')
+            messages.success(
+                self.request, 'New Transaction recorded succesfully')
             return redirect('dashboard:transaction')
         messages.error(self.request, 'Fill the form')
         return redirect('dashboard:transaction')
@@ -217,6 +228,8 @@ def generate_pdf(request):
 
 def edit_transaction(request, pk):
     transaction = get_object_or_404(Transaction, id=pk)
+    transaction_amount = transaction.amount
+    transaction_category = transaction.category.name
     form = AddTransactionForm(instance=transaction)
     context = {
         'form': form,
@@ -226,12 +239,76 @@ def edit_transaction(request, pk):
     if request.method == 'POST':
         form = AddTransactionForm(request.POST, instance=transaction)
         if form.is_valid():
+            if 'amount' in form.changed_data:
+                new_amount = form.cleaned_data.get('amount')
+
+                account = transaction.account
+                if transaction.category.name == 'Income':
+                    account.available_balance -= transaction_amount
+                    account.available_balance += new_amount
+                    account.save()
+                    messages.info(
+                        request, '%s account has been updated' % (account.name))
+                elif transaction.category.name == 'Expense':
+                    account.available_balance += transaction_amount
+                    account.available_balance -= new_amount
+                    account.save()
+                    messages.info(request, '%s Account updated' %
+                                  (account.name))
             form.save()
-            messages.info(request, 'Form valid')
-            print(request)
+            # print(request)
             return redirect('dashboard:transaction')
-        messages.error(request, 'Fill the form correctlt')
+        messages.error(request, 'Errors in the form')
         return render(request, template, context)
     return render(request, template, context)
 
-        
+
+class AccountsView(View):
+    def get(self, *args, **kwargs):
+        form = AccountTransferForm
+        template = 'pages/accounts.html'
+        accounts = Account.objects.all()
+        context = {'active': 'accounts',
+                   'accounts': accounts,
+                   'form': form}
+
+        return render(self.request, template, context)
+
+    def post(self, *args, **kwargs):
+        form = AccountTransferForm(self.request.POST or None)
+        if form.is_valid():
+            form.save()
+            messages.success(self.request, 'Transfer completed successfully')
+            return redirect('dashboard:accounts-view')
+
+        messages.error(self.request, 'Form not valid')
+        return redirect('dashboard:accounts-view')
+
+account_view = AccountsView.as_view()
+
+
+def edit_account(request, pk):
+    acc = get_object_or_404(Account, id=pk)
+    if acc:
+        form = AddAccountForm(instance=acc)
+        context= {
+            'account': acc,
+            'form': form,
+            'active': 'accounts',
+            'obj_name': acc.name
+        }
+
+        if request.method == 'POST':
+            form = AddAccountForm(request.POST, instance=acc)
+            if form.is_valid():
+                form.save()
+                messages.info(request, '%s account updated successfully' %(acc.name))
+                return redirect('dashboard:accounts-view')
+            messages.error(request, 'Error in form')
+            context ={
+                'active': 'accounts',
+                'form': form,
+                'obj_name': acc.name   
+            }
+            return render(request, 'pages/change_transaction.html', context)
+        return render(request, 'pages/change_transaction.html', context)

@@ -1,6 +1,12 @@
 {% extends 'pages/change.html' %}
 {% load widget_tweaks %}
 
+
+{% block object_name %}
+{{obj_name}}
+{% endblock object_name %}
+
+
 {% block form %}
 
 {% if form.is_multipart %}
@@ -11,21 +17,46 @@
         {% csrf_token %}
 
         {% for field in form %}
+
+        {% if field.field.widget.input_type == 'text' %}
+
         <div class="row">
             <div class="col-md-8 ml-3">
                 <div class="form-group row">
                     <label for="{{field.id}}" class="col-sm-4 col-form-label {% if field.field.required %}
-                        required font-weight-bolder text-danger{%endif %}">{{field.label}}:</label>
+                        required font-weight-bolder text-secondary{%endif %}">{{field.label}}:</label>
                     <div class="col-sm-8">
                         {% render_field field %}
                     </div>
                 </div>
             </div>
         </div>
+        {% elif field.field.widget.input_type == 'checkbox' %}
+        <div class="row">
+            <div class="col-md-8 offset-3">
+                <div class="custom-control custom-checkbox form-check-inline">
+                    {% render_field field class="custom-control-input" %}
+                    <label for="{{field.id_for_label}}" class="custom-control-label">{{field.label}}</label>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="row">
+            <div class="col-md-8 ml-3">
+                <div class="form-group row">
+                    <label for="{{field.id}}" class="col-sm-4 col-form-label {% if field.field.required %}
+                        required font-weight-bolder text-secondary{%endif %}">{{field.label}}:</label>
+                    <div class="col-sm-8 font-weight-bold">
+                        {% render_field field %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
         {% endfor %}
         <div class="row">
-            <div class="col-md-2"></div>
+            <div class="col-sm-3 col-form-label"></div>
             <input type="submit" value="Update" class="btn btn-info">
         </div>
     </form>
@@ -33,18 +64,18 @@
     {% endblock form %}
 
     {% block page_scripts %}
-<script>
-    var $list = $("#django_form :input[type='text']");
-    $list.each(function() {
-        $(this).addClass('form-control')
-    });
-    var $select = $("#django_form select");
-    $select.each(function() {
-        $(this).addClass('custom-select w-90')
-    });
-    var $list = $("#django_form :input[type='number']");
-    $list.each(function() {
-        $(this).addClass('form-control')
-    });
-</script>
+    <script>
+        var $list = $("#django_form :input[type='text']");
+        $list.each(function () {
+            $(this).addClass('form-control')
+        });
+        var $select = $("#django_form select");
+        $select.each(function () {
+            $(this).addClass('custom-select w-90')
+        });
+        var $list = $("#django_form :input[type='number']");
+        $list.each(function () {
+            $(this).addClass('form-control')
+        });
+    </script>
     {% endblock page_scripts %}
